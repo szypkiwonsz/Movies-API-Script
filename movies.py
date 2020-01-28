@@ -120,12 +120,10 @@ class Movies(Database):
         return value
 
     def printing(self, highscores=False):
-        print("{}".format(150 * "-"))
         if highscores is False:
+            print("{}".format(150 * "-"))
             print("{}{}{}".format("TITLE", 47 * " ", self.column.upper()))
-        else:
-            print("{}{}{}".format(self.column.upper(), 45 * " ", "TITLE"), 45 * " ", "VALUE")
-        print("{}".format(150 * "-"))
+            print("{}".format(150 * "-"))
         for i in range(len(self.data_column)):
             if self.column.upper() == "RUNTIME":
                 cleaned_data = Movies.hours_minutes(self, self.data_column[i][1])
@@ -140,7 +138,13 @@ class Movies(Database):
             if highscores is False:
                 print(self.data_column[i][0], (50 - len(self.data_column[i][0])) * " ", str(cleaned_data))
         if highscores is True:
-            cleaned_data = Movies.hours_minutes(self, self.data_column[0][1])
+            cleaned_data = self.data_column[0][1]
+            if self.column.upper() == "RUNTIME":
+                cleaned_data = Movies.hours_minutes(self, self.data_column[0][1])
+            elif self.column.upper() == "BOX_OFFICE":
+                cleaned_data = Movies.comma(self, self.data_column[0][1])
+                cleaned_data = Movies.dollar_char(self, cleaned_data)
+                self.column = "BOX OFFICE"
             print(self.column.upper(), (50 - len(self.column.upper())) * " ", self.data_column[0][0],
                   (50 - len(self.data_column[0][0])) * " ", cleaned_data)
 
@@ -148,20 +152,23 @@ class Movies(Database):
         awards = {}
         for key, value in self.data_column.items():
             oscars_won, oscars_nominated, won, wins, nominations, nominated = 0, 0, 0, 0, 0, 0
-            value = value.split()
-            if 'Won' in value:
-                won = value[value.index("Won") + 1]
-                if "Oscars." in value or "Oscar." in value:
-                    oscars_won = value[value.index("Won") + 1]
-            if "wins" in value:
-                wins = value[value.index("wins") - 1]
-            if "nominations." in value:
-                nominations = value[value.index("nominations.") - 1]
-            if "Nominated" in value:
-                nominated = value[value.index("Nominated") + 2]
-                if "Oscars." in value or "Oscar." in value:
-                    oscars_nominated = value[value.index("Nominated") + 2]
-            awards[key] = won, wins, nominations, nominated, oscars_won, oscars_nominated
+            if value is not None and value != "N/A":
+                value = value.split()
+                if 'Won' in value:
+                    won = value[value.index("Won") + 1]
+                    if "Oscars." in value or "Oscar." in value:
+                        oscars_won = value[value.index("Won") + 1]
+                if "wins" in value:
+                    wins = value[value.index("wins") - 1]
+                if "nominations." in value:
+                    nominations = value[value.index("nominations.") - 1]
+                if "Nominated" in value:
+                    nominated = value[value.index("Nominated") + 2]
+                    if "Oscars." in value or "Oscar." in value:
+                        oscars_nominated = value[value.index("Nominated") + 2]
+                awards[key] = won, wins, nominations, nominated, oscars_won, oscars_nominated
+            else:
+                continue
         return awards
 
     # --sort_by
@@ -243,10 +250,58 @@ class Movies(Database):
         print("Correctly added movie: {}.".format(title))
 
     def highscores(self):
+        data = {}
         self.column = "RUNTIME"
         self.data_column = Movies.get(self, "RUNTIME")
         self.data_column = Movies.sort_by(self, True)
+        print("{}".format(150 * "-"))
+        print("{}{}{}".format("COLUMN", 45 * " ", "TITLE"), 45 * " ", "VALUE")
+        print("{}".format(150 * "-"))
         Movies.printing(self, True)
+
+        self.column = "BOX_OFFICE"
+        self.data_column = Movies.get(self, "BOX_OFFICE")
+        self.data_column = Movies.sort_by(self, True)
+        Movies.printing(self, True)
+
+        self.column = "AWARDS"
+        self.data_column = Movies.get(self, "AWARDS")
+        self.data_column = Movies.awards(self)
+        self.data_column = list(self.data_column.items())
+        for i in range(len(self.data_column)):
+            data[self.data_column[i][0]] = int(self.data_column[i][1][0]) + int(self.data_column[i][1][1])
+        self.data_column = data
+        self.data_column = Movies.sorting_reverse(self)
+        self.column = "AWARDS WON"
+        Movies.printing(self, True)
+
+        self.column = "AWARDS"
+        self.data_column = Movies.get(self, "AWARDS")
+        self.data_column = Movies.awards(self)
+        self.data_column = list(self.data_column.items())
+        for i in range(len(self.data_column)):
+            data[self.data_column[i][0]] = int(self.data_column[i][1][2]) + int(self.data_column[i][1][3])
+        self.data_column = data
+        self.data_column = Movies.sorting_reverse(self)
+        self.column = "NOMINATIONS"
+        Movies.printing(self, True)
+
+        self.column = "AWARDS"
+        self.data_column = Movies.get(self, "AWARDS")
+        self.data_column = Movies.awards(self)
+        self.data_column = list(self.data_column.items())
+        for i in range(len(self.data_column)):
+            data[self.data_column[i][0]] = int(self.data_column[i][1][4])
+        self.data_column = data
+        self.data_column = Movies.sorting_reverse(self)
+        self.column = "OSCARS"
+        Movies.printing(self, True)
+
+        self.column = "IMDB_RATING"
+        self.data_column = Movies.get(self, "IMDB_RATING")
+        self.data_column = Movies.sort_by(self, True)
+        Movies.printing(self, True)
+
 
 
 
