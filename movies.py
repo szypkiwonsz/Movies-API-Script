@@ -14,7 +14,6 @@ class Movies(Database):
 
     # Inserting titles and selected movie data into dictionary.
     def get(self, column):
-
         data = {}
         all_data = Database.select(self, "*")
         for movies in range(len(self.titles)):
@@ -88,7 +87,7 @@ class Movies(Database):
 
     # Sorting method.
     def sorting(self):
-        data = sorted(self.data_column.items(), key=lambda kv: (kv[1], kv[0]))
+        data = sorted(self.data_column.items(), key=lambda kv: (kv[1] or 0, kv[0]))
         return data
 
     # Reversed sorting method.
@@ -96,6 +95,7 @@ class Movies(Database):
         data = sorted(self.data_column.items(), key=lambda kv: (float(kv[1]) if kv[1] else 0, kv[0]), reverse=True)
         return data
 
+    # Taking minutes value and returning hours and minutes value.
     def hours_minutes(self, data_column):
         if data_column is not "":
             minutes = int(data_column) % 60
@@ -105,6 +105,7 @@ class Movies(Database):
             cleaned_data = ""
         return cleaned_data
 
+    # Taking data and adding dollar char.
     def dollar_char(self, data):
         if data is not "":
             cleaned_data = "$" + data
@@ -112,6 +113,7 @@ class Movies(Database):
             cleaned_data = ""
         return cleaned_data
 
+    # Adding commas if number is > than 999.
     def comma(self, data_column):
         if data_column is not "":
             value = '{:,}'.format(int(data_column))
@@ -119,7 +121,9 @@ class Movies(Database):
             value = ""
         return value
 
+    # printing method.
     def printing(self, highscores=False):
+        # if not --highscores'
         if highscores is False:
             print("{}".format(150 * "-"))
             print("{}{}{}".format("TITLE", 47 * " ", self.column.upper()))
@@ -137,6 +141,7 @@ class Movies(Database):
                 cleaned_data = self.data_column[i][1]
             if highscores is False:
                 print(self.data_column[i][0], (50 - len(self.data_column[i][0])) * " ", str(cleaned_data))
+        # printing for --highscores
         if highscores is True:
             cleaned_data = self.data_column[0][1]
             if self.column.upper() == "RUNTIME":
@@ -197,6 +202,7 @@ class Movies(Database):
                 if value is not "":
                     if int(value) > 100000000:
                         dictionary[key] = value
+        # Filtering by movies that wins more than 80% of their nominations.
         elif self.column.upper() == "AWARDS":
             awards = Movies.awards(self)
             self.column = "AWARDS WON"
@@ -205,20 +211,27 @@ class Movies(Database):
                 nominations = (int(value[2]) + int(value[3]))
                 if wins > nominations * 0.8:
                     dictionary[key] = wins
+        # Printing movies who was nominated for oscars.
         elif self.column.upper() == "NO_OSCARS":
             self.column = "AWARDS"
             awards = Movies.awards(self)
-            print(awards)
             self.column = "OSCAR NOMINATIONS"
             for key, value in awards.items():
-                print(key, value[4], value[5])
                 if int(value[5]) > 0 and int(value[4]) == 0:
                     dictionary[key] = str(value[5]) + " oscar nominations."
+        # Filtering by typed value.
         else:
+            if self.column.upper() == "ACTOR":
+                self.column = "CAST"
+                self.data_column = Movies.get(self, "CAST")
+                self.column = "ACTOR"
             self.data_column = dict(self.data_column)
             for key, value in self.data_column.items():
-                if parameter in value:
-                    dictionary[key] = value
+                if value is not None and value != "N/A":
+                    if parameter in value:
+                        dictionary[key] = value
+                else:
+                    continue
 
         self.data_column = dictionary
         self.data_column = list(self.data_column.items())
@@ -249,6 +262,7 @@ class Movies(Database):
         Movies.insert(self, title)
         print("Correctly added movie: {}.".format(title))
 
+    # --highscores
     def highscores(self):
         data = {}
         self.column = "RUNTIME"
@@ -300,6 +314,7 @@ class Movies(Database):
         self.column = "IMDB_RATING"
         self.data_column = Movies.get(self, "IMDB_RATING")
         self.data_column = Movies.sort_by(self, True)
+        self.column = "IMDB RATING"
         Movies.printing(self, True)
 
 
