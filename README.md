@@ -31,8 +31,9 @@
 - If the user has entered wrong command.
 - If the user has entered command before he loads data into database.
 
-script.py
 ##### Avaible commands:
+
+python script.py COMMAND
 
 --help -> show basic help menu.
 
