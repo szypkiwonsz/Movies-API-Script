@@ -31,6 +31,7 @@ def script():
                         sort_by = Movies("movies.sqlite", "MOVIES", column)
                         sort_by.sort_by()
                         sort_by.close()
+            # filtering selected movie data by argument.
             elif a == '--filter_by':
                 if sys.argv[2:]:
                     column = sys.argv[2]
@@ -51,7 +52,7 @@ def script():
                             print("This command not exist! Write: python main.py --help")
                 else:
                     print("This command not exist! Write: python main.py --help")
-
+            # comparing two selected movie data and printing the highest value.
             elif a == '--comparing_by':
                 if sys.argv[2:]:
                     column = sys.argv[2]
@@ -71,7 +72,7 @@ def script():
                         print("This command not exist! Write: python main.py --help")
                 else:
                     print("This command not exist! Write: python main.py --help")
-
+            # adding movie to database.
             elif a == '--add_movie':
                 if sys.argv[2:]:
                     title = sys.argv[2]
@@ -80,11 +81,31 @@ def script():
                     add_movie.close()
                 else:
                     print("This command not exist! Write: python main.py --help")
-
+            # printing movies data with the biggest values.
             elif a == '--highscores':
                 highscores = Movies("movies.sqlite", "MOVIES")
                 highscores.highscores()
                 highscores.close()
+            # printing available commands.
+            elif a == '--help':
+                print('Commands:')
+                print(' --help -> show this basic help menu.')
+                print(' --get_data -> Importing data from api to database.')
+                print(' --sort_by COLUMN_NAME_FROM_DATABASE -> Sorting data from database by column.')
+                print(' --filter_by director "NAME" -> Filtering director column by name or argument.')
+                print(' --filter_by actor "NAME" -> Filtering actor column by name or argument.')
+                print(' --filter_by no_oscars -> Filtering movies that was nominated.'
+                      'for Oscar but did not win any.')
+                print(' --filter_by awards -> Filtering movies that won more than 80% of nominations.')
+                print(' --filter_by box_office -> Filtering movies that earned more than 100,000,000 $')
+                print(' --filter_by language "ARGUMENT" -> Filtering language column by argument.')
+                print(' --comparing_by imdb_rating "FIRST_MOVIE" "SECOND_MOVIE" -> Comparing IMDB Rating of two movies.')
+                print(' --comparing_by box_office "FIRST_MOVIE" "SECOND_MOVIE" -> Comparing Box Office of two movies.')
+                print(' --comparing_by awards "FIRST_MOVIE" "SECOND_MOVIE" -> Comparing Awards of two movies.')
+                print(' --comparing_by runtime "FIRST_MOVIE" "SECOND_MOVIE" -> Comparing Runtime of two movies.')
+                print(' --add_movie "TITLE_OF_MOVIE" -> Adding movie with typed title.')
+                print(' --highscores -> Showing current highscores in: Runtime, Box Office earnings, '
+                      'Most awards won, Most nominations, Most oscars, Highest IMDB Rating.')
 
 
 if __name__ == '__main__':
