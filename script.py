@@ -1,4 +1,5 @@
 import sys
+import sqlite3
 
 from database import Database
 from movies import Movies
@@ -109,4 +110,7 @@ def script():
 
 
 if __name__ == '__main__':
-    script()
+    try:
+        script()
+    except sqlite3.OperationalError as e:
+        print("First you have to load data into database by writing: python main.py --get_data")
