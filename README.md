@@ -66,5 +66,8 @@ python script.py COMMAND
 --highscores -> Showing current highscores in: Runtime, Box Office earnings, Most awards won, 
 Most nominations, Most oscars, Highest IMDB Rating.
 
+##### Packages to install:
+- pip install requests
+
 ##### Version of software used:
 - Python 3.7.x
