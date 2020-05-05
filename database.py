@@ -1,111 +1,66 @@
 import sqlite3
 import requests
+import concurrent.futures
 
 
 class Database:
 
-    # Opens database connection.
-    def __init__(self, name, table):
+    def __init__(self, name):
+        self.name = name
+        self.conn = self.open()
+        self.cur = self.conn.cursor()
 
+    def __del__(self):
+        self.close()
+
+    def open(self):
+        db = None
         try:
-            self.connect = sqlite3.connect(name)
-            self.cursor = self.connect.cursor()
-        except sqlite3.Error as e:
-            print("Error connecting to database!")
+            db = sqlite3.connect(self.name)
+            print('---> Connected to database.')
+        except sqlite3.Error:
+            print('---> Error connecting to database!')
+        return db
 
-        self.table = table
-
-    # Closes database connection.
     def close(self):
+        if self.conn:
+            self.conn.commit()
+            self.cur.close()
+            self.conn.close()
+            print('---> Database connection has been closed.')
 
-        if self.connect:
-            self.connect.commit()
-            self.cursor.close()
-            self.connect.close()
 
-    # Gets data from database by table and column name.
-    def select(self, column):
+class Api(Database):
 
-        query = "SELECT {} FROM {}".format(column, self.table)
-        self.cursor.execute(query)
+    def __init__(self, name, api_key):
+        super().__init__(name)
+        self.api_key = api_key
+        self.titles = self.get_titles()
+        self.data = self.download_movies_data()
 
-        rows = self.cursor.fetchall()
+    def get_titles(self):
+        titles = self.cur.execute('SELECT TITLE FROM MOVIES').fetchall()
+        titles = [title for i in titles for title in i]
+        return titles
 
-        return rows
+    def get_json_data(self, title):
+        columns = ['Year', 'Runtime', 'Genre', 'Director', 'Actors', 'Writer', 'Language', 'Country', 'Awards',
+                   'imdbRating', 'imdbVotes', 'BoxOffice', 'Title']
+        result = requests.get(f'http://www.omdbapi.com/?t={title}&apikey={self.api_key}').json()
+        data = []
+        for column in columns:
+            data.append(result[column]) if column in result else data.append(None)
+        return data
 
-    # Updates database column with values.
-    def update(self, table, column, update, where_column, value):
-        self.cursor.execute("UPDATE {} SET {} = ? WHERE {} = ?".format(table, column, where_column),
-                            (update, value))
+    def download_movies_data(self):
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            results = executor.map(self.get_json_data, self.titles)
+        return results
 
-    def insert(self, title, year=None, runtime=None, genre=None, director=None, cast=None, writer=None,
-               language=None, country=None, awards=None, imdb_rating=None, imdb_votes=None, box_office=None):
-        self.cursor.execute("INSERT INTO MOVIES (TITLE, YEAR, RUNTIME, GENRE, DIRECTOR, CAST, WRITER, LANGUAGE, "
-                            "COUNTRY, AWARDS, IMDb_Rating, IMDb_votes, BOX_OFFICE) VALUES "
-                            "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (title, year, runtime, genre,
-                                                                        director, cast, writer, language,
-                                                                        country, awards, imdb_rating,
-                                                                        imdb_votes, box_office))
-
-    # Gets data from api and inserts into database.
-    def get_data(self):
-
-        titles = Database.select(self, "TITLE")
-        print("Getting data from api:")
-
-        for movie in range(len(titles)):
-            print("Getting {} movie data...".format(",".join(titles[movie])))
-            results = (requests.get('http://www.omdbapi.com/?t=' + ",".join(titles[movie]) + '&apikey=39f41e43'))
-            # Inserting results of api data into dictionary.
-            results = eval(results.text)
-
-            # Checking if data for movie exist and if not set value as null.
-            if results.get("Year"):
-                Database.update(self, "MOVIES", "YEAR", results["Year"], "ID", movie)
-            else:
-                continue
-            if results.get("Runtime"):
-                Database.update(self, "MOVIES", "RUNTIME", results["Runtime"], "ID", movie)
-            else:
-                continue
-            if results.get("Genre"):
-                Database.update(self, "MOVIES", "GENRE", results["Genre"], "ID", movie)
-            else:
-                continue
-            if results.get("Director"):
-                Database.update(self, "MOVIES", "DIRECTOR", results["Director"], "ID", movie)
-            else:
-                continue
-            if results.get("Actors"):
-                Database.update(self, "MOVIES", "CAST", results["Actors"], "ID", movie)
-            else:
-                continue
-            if results.get("Writer"):
-                Database.update(self, "MOVIES", "WRITER", results["Writer"], "ID", movie)
-            else:
-                continue
-            if results.get("Language"):
-                Database.update(self, "MOVIES", "LANGUAGE", results["Language"], "ID", movie)
-            else:
-                continue
-            if results.get("Country"):
-                Database.update(self, "MOVIES", "COUNTRY", results["Country"], "ID", movie)
-            else:
-                continue
-            if results.get("Awards"):
-                Database.update(self, "MOVIES", "AWARDS", results["Awards"], "ID", movie)
-            else:
-                continue
-            if results.get("imdbRating"):
-                Database.update(self, "MOVIES", "IMDb_Rating", results["imdbRating"], "ID", movie)
-            else:
-                continue
-            if results.get("imdbVotes"):
-                Database.update(self, "MOVIES", "IMDb_votes", results["imdbVotes"], "ID", movie)
-            else:
-                continue
-            if results.get("BoxOffice"):
-                Database.update(self, "MOVIES", "BOX_OFFICE", results["BoxOffice"], "ID", movie)
-            else:
-                continue
-        print("Finished getting and updating database with api data.")
+    def update_database(self):
+        print('Updating database.')
+        for data in self.data:
+            query = '''UPDATE MOVIES SET YEAR=?, RUNTIME=?, GENRE=?, DIRECTOR=?, CAST=?, WRITER=?, LANGUAGE=?,
+                             COUNTRY=?, AWARDS=?, IMDb_Rating=?, IMDb_votes=?, BOX_OFFICE=? WHERE TRIM(TITLE)=?'''
+            self.cur.execute(query, data)
+        print('Update complete.')
