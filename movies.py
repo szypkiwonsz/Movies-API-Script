@@ -5,7 +5,7 @@ class SortBy(Database):
 
     def __init__(self, name, argument):
         super().__init__(name)
-        self.argument = argument
+        self.argument = argument.lower()
 
     def check_order(self):
         sort_desc = ['year', 'runtime', 'imdb_rating', 'imdb_votes', 'box_office']
