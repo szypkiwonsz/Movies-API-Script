@@ -45,8 +45,7 @@ class FilterBy(Database):
         self.parameter = argument[1]
 
     def filter_by(self):
-        query = f'SELECT TITLE, "{self.column}" FROM MOVIES WHERE "{self.parameter}" LIKE "%{self.parameter}%"'
+        query = f'SELECT TITLE, "{self.column}" FROM MOVIES WHERE "{self.column}" LIKE "%{self.parameter}%"'
         movies = self.cur.execute(query).fetchall()
-        print(movies)
         for movie in movies:
             print(f'{movie[0]:<50}{movie[1]}')
