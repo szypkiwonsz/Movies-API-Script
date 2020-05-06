@@ -1,5 +1,5 @@
 from database import Api
-from movies import SortBy, FilterBy
+from movies import SortBy, FilterBy, CompareBy
 import argparse
 import time
 
@@ -14,6 +14,7 @@ if __name__ == "__main__":
                         help="download all movies")
     parser.add_argument("--sort_by", help="sort movies by column")
     parser.add_argument("--filter_by", nargs='+', help="sort movies by column")
+    parser.add_argument("--compare_by", nargs='+', help="comparing movies by column")
     args = parser.parse_args()
 
     if not any(vars(args).values()):
@@ -27,5 +28,8 @@ if __name__ == "__main__":
     elif args.filter_by:
         filter_by = FilterBy('movies.sqlite', args.filter_by)
         filter_by.filter_by()
+    elif args.compare_by:
+        compare_by = CompareBy('movies.sqlite', args.compare_by)
+        compare_by.compare_by()
         finish = time.perf_counter()
         print(f'Finished in {round(finish-start, 2)} second(s)')
