@@ -106,3 +106,19 @@ class FilterBy(Database):
         query = f'SELECT TITLE, AWARDS FROM MOVIES'
         awards = dict(self.cur.execute(query).fetchall())
         return awards
+
+
+class CompareBy(Database):
+
+    def __init__(self, name, argument):
+        super().__init__(name)
+        self.column = argument[0]
+        self.first_movie = argument[1]
+        self.second_movie = argument[2]
+
+    def compare_by(self):
+        query = f'SELECT TITLE, MAX("{self.column}") FROM MOVIES WHERE TITLE LIKE "{self.first_movie}" OR TITLE LIKE ' \
+            f'"{self.second_movie}"'
+        movies = dict(self.cur.execute(query).fetchall())
+        for key, value in movies.items():
+            print(f'{key:<50}{value}')
