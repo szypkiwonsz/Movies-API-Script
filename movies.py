@@ -63,7 +63,9 @@ class FilterBy(Database):
         elif self.column == 'no_oscars':
             movies = {k: self.nominations_oscars()[k] for k in self.nominations_oscars() if int(self.nominations_oscars()[k]) != 0}
         elif self.column == 'box_office':
-            pass
+            query = f'SELECT TITLE, "{self.column}" FROM MOVIES WHERE CAST(REPLACE(REPLACE("{self.column}" , ' \
+                f'",", ""), "$", "") AS DOUBLE) > 100000000'
+            movies = dict(self.cur.execute(query).fetchall())
         for key, value in movies.items():
             print(f'{key:<50}{value}')
 
