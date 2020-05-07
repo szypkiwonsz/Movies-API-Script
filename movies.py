@@ -117,8 +117,64 @@ class CompareBy(Database):
         self.second_movie = argument[2]
 
     def compare_by(self):
-        query = f'SELECT TITLE, MAX("{self.column}") FROM MOVIES WHERE TITLE LIKE "{self.first_movie}" OR TITLE LIKE ' \
-            f'"{self.second_movie}"'
-        movies = dict(self.cur.execute(query).fetchall())
+        if self.column == 'imdb_rating':
+            query = f'SELECT TITLE, MAX(CAST("{self.column}"AS DOUBLE)) FROM MOVIES WHERE TITLE LIKE ' \
+                f'"{self.first_movie}" OR TITLE LIKE "{self.second_movie}"'
+            movies = dict(self.cur.execute(query).fetchall())
+        elif self.column == 'box_office':
+            query = f'SELECT TITLE, MAX(CAST(REPLACE(REPLACE("{self.column}" , ",", ""), "$", "") AS DOBULE)) FROM ' \
+                f'MOVIES WHERE TITLE LIKE "{self.first_movie}" OR TITLE LIKE "{self.second_movie}"'
+            movies = dict(self.cur.execute(query).fetchall())
+            movies = self.box_office_characters(movies)
+        elif self.column == 'runtime':
+            query = f'SELECT TITLE, MAX(CAST("{self.column}"AS INTEGER)) FROM MOVIES WHERE TITLE LIKE ' \
+                f'"{self.first_movie}" OR TITLE LIKE "{self.second_movie}"'
+            movies = dict(self.cur.execute(query).fetchall())
+            movies = self.runtime_character(movies)
+        else:
+            query = f'SELECT TITLE, AWARDS FROM MOVIES WHERE TITLE LIKE ' \
+                f'"{self.first_movie}" OR TITLE LIKE "{self.second_movie}"'
+            movies = dict(self.cur.execute(query).fetchall())
+            movies = self.wins(movies)
+            movies = max(movies.items(), key=lambda k: k[1])
+            movies = dict([movies])
+
         for key, value in movies.items():
             print(f'{key:<50}{value}')
+
+    @staticmethod
+    def box_office_characters(movies):
+        for key, value in movies.items():
+            movies[key] = '${:,}'.format(value)
+        return movies
+
+    @staticmethod
+    def runtime_character(movies):
+        for key, value in movies.items():
+            hours = value // 60
+            minutes = value % 60
+            movies[key] = f'{hours}h {minutes}min'
+        return movies
+
+    @staticmethod
+    def wins(awards):
+        for key, value in awards.items():
+            wins = 0
+            if 'wins' in value:
+                try:
+                    win_index = value.split(' ').index('wins')
+                    wins = value.split(' ')[win_index - 1]
+                except ValueError:
+                    pass
+            awards[key] = wins
+        return awards
+
+
+class AddMovie(Database):
+
+    def __init__(self, title, name):
+        super().__init__(name)
+        self.title = title
+
+    def add_movie(self):
+        pass
