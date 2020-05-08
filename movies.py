@@ -1,4 +1,4 @@
-from database import Database
+from database import Database, Api
 
 
 class SortBy(Database):
@@ -170,11 +170,17 @@ class CompareBy(Database):
         return awards
 
 
-class AddMovie(Database):
+class AddMovie(Api):
 
-    def __init__(self, title, name):
-        super().__init__(name)
+    def __init__(self, name, api_key, title):
+        super().__init__(name, api_key)
         self.title = title
 
     def add_movie(self):
-        pass
+        query = f'SELECT TITLE FROM MOVIES WHERE TITLE = "{self.title}"'
+        is_movie = list(self.cur.execute(query))
+        if is_movie:
+            print('This movie already exist in database.')
+        else:
+            query = f'INSERT INTO MOVIES (TITLE) VALUES ("{self.title}")'
+            self.cur.execute(query)
