@@ -24,16 +24,19 @@ if __name__ == "__main__":
         api = Api(DB_NAME, API_KEY)
         api.update_database()
     elif args.sort_by:
-        sort_by = SortBy('movies.sqlite', args.sort_by)
+        sort_by = SortBy(DB_NAME, args.sort_by)
         sort_by.sort_by()
     elif args.filter_by:
-        filter_by = FilterBy('movies.sqlite', args.filter_by)
+        filter_by = FilterBy(DB_NAME, args.filter_by)
         filter_by.filter_by()
     elif args.compare_by:
-        compare_by = CompareBy('movies.sqlite', args.compare_by)
+        compare_by = CompareBy(DB_NAME, args.compare_by)
         compare_by.compare_by()
     elif args.add_movie:
-        add_movie = AddMovie('movies.sqlite', args.add_movie)
+        add_movie = AddMovie(DB_NAME, API_KEY, args.add_movie)
         add_movie.add_movie()
+        del add_movie
+        add_movie = AddMovie(DB_NAME, API_KEY, args.add_movie)
+        add_movie.update_database()
         finish = time.perf_counter()
         print(f'Finished in {round(finish-start, 2)} second(s)')
