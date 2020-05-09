@@ -117,10 +117,12 @@ class FilterBy(Database, Functions):
             query = f'SELECT TITLE, "{self.column}" FROM MOVIES WHERE "{self.column}" LIKE "%{self.parameter}%"'
             movies = dict(self.cur.execute(query).fetchall())
         elif self.column == 'awards':
-            movies = {k: self.wins()[k] for k in self.wins() if k in self.nominations(self.awards()) and int(self.wins()[k]) >
-                      int(self.nominations(self.awards())[k])*0.8}
+            movies = {k: self.wins(self.awards())[k] for k in self.wins(self.awards()) if
+                      k in self.nominations(self.awards()) and int(self.wins(self.awards())[k]) >
+                      int(self.nominations(self.awards())[k]) * 0.8}
         elif self.column == 'no_oscars':
-            movies = {k: self.nominations_oscars()[k] for k in self.nominations_oscars() if int(self.nominations_oscars()[k]) != 0}
+            movies = {k: self.nominations_oscars()[k] for k in self.nominations_oscars() if
+                      int(self.nominations_oscars()[k]) != 0}
         elif self.column == 'box_office':
             query = f'SELECT TITLE, "{self.column}" FROM MOVIES WHERE CAST(REPLACE(REPLACE("{self.column}" , ' \
                 f'",", ""), "$", "") AS DOUBLE) > 100000000'
@@ -138,22 +140,6 @@ class FilterBy(Database, Functions):
             except TypeError:
                 nominated_oscars = 0
             awards[key] = nominated_oscars
-        return awards
-
-    def wins(self):
-        awards = self.awards()
-        for key, value in awards.items():
-            wins = 0
-            try:
-                if 'wins' in value:
-                    try:
-                        win_index = value.split(' ').index('wins')
-                        wins = value.split(' ')[win_index - 1]
-                    except ValueError:
-                        pass
-            except TypeError:
-                pass
-            awards[key] = wins
         return awards
 
     def awards(self):
