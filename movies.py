@@ -1,6 +1,65 @@
 from database import Database, Api
 
 
+class Functions:
+
+    @staticmethod
+    def box_office_characters(movies):
+        for key, value in movies.items():
+            movies[key] = '${:,}'.format(value)
+        return movies
+
+    @staticmethod
+    def runtime_character(movies):
+        for key, value in movies.items():
+            hours = value // 60
+            minutes = value % 60
+            movies[key] = f'{hours}h {minutes}min'
+        return movies
+
+    @staticmethod
+    def wins(awards):
+        for key, value in awards.items():
+            wins = 0
+            try:
+                if 'wins' in value:
+                    try:
+                        win_index = value.split(' ').index('wins')
+                        wins = value.split(' ')[win_index - 1]
+                    except ValueError:
+                        wins = 0
+            except TypeError:
+                wins = 0
+            awards[key] = wins
+        return awards
+
+    @staticmethod
+    def nominations(awards):
+        for key, value in awards.items():
+            nominations = 0
+            try:
+                if 'Nominated' in value:
+                    nominations += int(value.split(' ')[2])
+                if 'nominations' in value:
+                    nominations += int(value.split(' ')[-2])
+            except TypeError:
+                nominations += 0
+            awards[key] = nominations
+        return awards
+
+    @staticmethod
+    def oscars(awards):
+        for key, value in awards.items():
+            nominated_oscars = 0
+            try:
+                if 'Won' in value and 'Oscar' in value:
+                    nominated_oscars = int(value.split(' ')[1])
+            except TypeError:
+                nominated_oscars = 0
+            awards[key] = nominated_oscars
+        return awards
+
+
 class SortBy(Database):
 
     def __init__(self, name, argument):
@@ -37,7 +96,7 @@ class SortBy(Database):
             print(f'{movie[0]:<50}{movie[1]}')
 
 
-class FilterBy(Database):
+class FilterBy(Database, Functions):
 
     def __init__(self, name, argument):
         super().__init__(name)
@@ -58,8 +117,8 @@ class FilterBy(Database):
             query = f'SELECT TITLE, "{self.column}" FROM MOVIES WHERE "{self.column}" LIKE "%{self.parameter}%"'
             movies = dict(self.cur.execute(query).fetchall())
         elif self.column == 'awards':
-            movies = {k: self.wins()[k] for k in self.wins() if k in self.nominations() and int(self.wins()[k]) >
-                      int(self.nominations()[k])*0.8}
+            movies = {k: self.wins()[k] for k in self.wins() if k in self.nominations(self.awards()) and int(self.wins()[k]) >
+                      int(self.nominations(self.awards())[k])*0.8}
         elif self.column == 'no_oscars':
             movies = {k: self.nominations_oscars()[k] for k in self.nominations_oscars() if int(self.nominations_oscars()[k]) != 0}
         elif self.column == 'box_office':
@@ -69,23 +128,15 @@ class FilterBy(Database):
         for key, value in movies.items():
             print(f'{key:<50}{value}')
 
-    def nominations(self):
-        awards = self.awards()
-        for key, value in awards.items():
-            nominations = 0
-            if 'Nominated' in value:
-                nominations += int(value.split(' ')[2])
-            if 'nominations' in value:
-                nominations += int(value.split(' ')[-2])
-            awards[key] = nominations
-        return awards
-
     def nominations_oscars(self):
         awards = self.awards()
         for key, value in awards.items():
             nominated_oscars = 0
-            if 'Nominated' in value and 'Oscar' in value:
-                nominated_oscars = int(value.split(' ')[2])
+            try:
+                if 'Nominated' in value and 'Oscar' in value:
+                    nominated_oscars = int(value.split(' ')[2])
+            except TypeError:
+                nominated_oscars = 0
             awards[key] = nominated_oscars
         return awards
 
@@ -93,12 +144,15 @@ class FilterBy(Database):
         awards = self.awards()
         for key, value in awards.items():
             wins = 0
-            if 'wins' in value:
-                try:
-                    win_index = value.split(' ').index('wins')
-                    wins = value.split(' ')[win_index - 1]
-                except ValueError:
-                    pass
+            try:
+                if 'wins' in value:
+                    try:
+                        win_index = value.split(' ').index('wins')
+                        wins = value.split(' ')[win_index - 1]
+                    except ValueError:
+                        pass
+            except TypeError:
+                pass
             awards[key] = wins
         return awards
 
@@ -108,7 +162,7 @@ class FilterBy(Database):
         return awards
 
 
-class CompareBy(Database):
+class CompareBy(Database, Functions):
 
     def __init__(self, name, argument):
         super().__init__(name)
@@ -142,33 +196,6 @@ class CompareBy(Database):
         for key, value in movies.items():
             print(f'{key:<50}{value}')
 
-    @staticmethod
-    def box_office_characters(movies):
-        for key, value in movies.items():
-            movies[key] = '${:,}'.format(value)
-        return movies
-
-    @staticmethod
-    def runtime_character(movies):
-        for key, value in movies.items():
-            hours = value // 60
-            minutes = value % 60
-            movies[key] = f'{hours}h {minutes}min'
-        return movies
-
-    @staticmethod
-    def wins(awards):
-        for key, value in awards.items():
-            wins = 0
-            if 'wins' in value:
-                try:
-                    win_index = value.split(' ').index('wins')
-                    wins = value.split(' ')[win_index - 1]
-                except ValueError:
-                    pass
-            awards[key] = wins
-        return awards
-
 
 class AddMovie(Api):
 
@@ -184,3 +211,54 @@ class AddMovie(Api):
         else:
             query = f'INSERT INTO MOVIES (TITLE) VALUES ("{self.title}")'
             self.cur.execute(query)
+
+
+class Highscores(Database, Functions):
+
+    def __init__(self, name):
+        super().__init__(name)
+        self.highscore_runtime = self.runtime()
+        self.highscore_box_office = self.box_office()
+        self.highscore_awards = self.awards(self.wins)
+        self.highscore_nominations = self.awards(self.nominations)
+        self.highscore_oscars = self.awards(self.oscars)
+        self.highscore_imdb_rating = self.imdb_rating()
+
+    def runtime(self):
+        query_runtime = f'SELECT TITLE, MAX(CAST(RUNTIME AS INTEGER)) FROM MOVIES'
+        highscore_runtime = dict(self.cur.execute(query_runtime))
+        highscore_runtime = self.runtime_character(highscore_runtime)
+        return highscore_runtime
+
+    def box_office(self):
+        query_boxoffice = f'SELECT TITLE, MAX(CAST(REPLACE(REPLACE(BOX_OFFICE , ",", ""), "$", "") AS DOBULE)) ' \
+            f'FROM MOVIES'
+        highscore_box_office = dict(self.cur.execute(query_boxoffice))
+        highscore_box_office = self.box_office_characters(highscore_box_office)
+        return highscore_box_office
+
+    def awards(self, function):
+        query_awards = f'SELECT TITLE, AWARDS FROM MOVIES'
+        highscore_awards = dict(self.cur.execute(query_awards))
+        highscore_awards = function(highscore_awards)
+        highscore_awards = max(highscore_awards.items(), key=lambda k: int(k[1]))
+        highscore_awards = dict([highscore_awards])
+        return highscore_awards
+
+    def imdb_rating(self):
+        query_imdb_rating = f'SELECT TITLE, MAX(CAST(IMDB_RATING AS DOUBLE)) FROM MOVIES'
+        highscore_imdb_rating = dict(self.cur.execute(query_imdb_rating))
+        return highscore_imdb_rating
+
+    @staticmethod
+    def print(dictionary, column):
+        for key, value in dictionary.items():
+            print(f'{column:<50}{key:<50}{value}')
+
+    def highscores(self):
+        self.print(self.highscore_runtime, 'Runtime')
+        self.print(self.highscore_box_office, 'Box Office')
+        self.print(self.highscore_awards, 'Awards')
+        self.print(self.highscore_nominations, 'Nominations')
+        self.print(self.highscore_oscars, 'Oscars')
+        self.print(self.highscore_imdb_rating, 'Runtime')
