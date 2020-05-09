@@ -1,5 +1,5 @@
 from database import Api
-from movies import SortBy, FilterBy, CompareBy, AddMovie
+from movies import SortBy, FilterBy, CompareBy, AddMovie, Highscores
 import argparse
 import time
 
@@ -16,6 +16,7 @@ if __name__ == "__main__":
     parser.add_argument("--filter_by", nargs='+', help="sort movies by column")
     parser.add_argument("--compare_by", nargs='+', help="comparing movies by column")
     parser.add_argument("--add_movie", help="adding movie by title")
+    parser.add_argument("--highscores", action='store_true', help="shows highscores")
     args = parser.parse_args()
 
     if not any(vars(args).values()):
@@ -38,5 +39,8 @@ if __name__ == "__main__":
         del add_movie
         add_movie = AddMovie(DB_NAME, API_KEY, args.add_movie)
         add_movie.update_database()
+    elif args.highscores:
+        highscores = Highscores(DB_NAME)
+        highscores.highscores()
         finish = time.perf_counter()
         print(f'Finished in {round(finish-start, 2)} second(s)')
