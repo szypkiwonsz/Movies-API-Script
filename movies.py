@@ -1,3 +1,6 @@
+import sqlite3
+import sys
+
 from database import Database, Api
 
 
@@ -87,11 +90,15 @@ class SortBy(Database):
         elif self.argument in column_box_office:
             query = f'SELECT TITLE, "{self.argument}" FROM MOVIES ORDER BY CAST(REPLACE(REPLACE("{self.argument}" , ' \
                 f'",", ""), "$", "") AS DOUBLE) {self.check_order()}'
-        else:
-            query = f'SELECT TITLE, "{self.argument}" FROM MOVIES ORDER BY "{self.argument}" ' \
+        elif self.argument.isalpha():
+            query = f'SELECT TITLE, {self.argument} FROM MOVIES ORDER BY "{self.argument}" ' \
                 f'{self.check_order()}'
-
-        movies = self.cur.execute(query).fetchall()
+        else:
+            sys.exit(f'Baza danych nie posiada kolumny: {self.argument}')
+        try:
+            movies = self.cur.execute(query).fetchall()
+        except sqlite3.OperationalError:
+            sys.exit(f'Baza danych nie posiada kolumny: {self.argument}')
         for movie in movies:
             print(f'{movie[0]:<50}{movie[1]}')
 
@@ -127,8 +134,11 @@ class FilterBy(Database, Functions):
             query = f'SELECT TITLE, "{self.column}" FROM MOVIES WHERE CAST(REPLACE(REPLACE("{self.column}" , ' \
                 f'",", ""), "$", "") AS DOUBLE) > 100000000'
             movies = dict(self.cur.execute(query).fetchall())
-        for key, value in movies.items():
-            print(f'{key:<50}{value}')
+        if movies.items():
+            for key, value in movies.items():
+                print(f'{key:<50}{value}')
+        else:
+            sys.exit('Brak wyników.')
 
     def nominations_oscars(self):
         awards = self.awards()
