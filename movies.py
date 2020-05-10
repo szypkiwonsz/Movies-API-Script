@@ -94,11 +94,11 @@ class SortBy(Database):
             query = f'SELECT TITLE, {self.argument} FROM MOVIES ORDER BY "{self.argument}" ' \
                 f'{self.check_order()}'
         else:
-            sys.exit(f'Baza danych nie posiada kolumny: {self.argument}')
+            sys.exit(f'Database column does not exist: {self.argument}')
         try:
             movies = self.cur.execute(query).fetchall()
         except sqlite3.OperationalError:
-            sys.exit(f'Baza danych nie posiada kolumny: {self.argument}')
+            sys.exit(f'Database column does not exist: {self.argument}')
         for movie in movies:
             print(f'{movie[0]:<50}{movie[1]}')
 
@@ -138,7 +138,7 @@ class FilterBy(Database, Functions):
             for key, value in movies.items():
                 print(f'{key:<50}{value}')
         else:
-            sys.exit('Brak wyników.')
+            sys.exit('No data.')
 
     def nominations_oscars(self):
         awards = self.awards()
@@ -186,8 +186,11 @@ class CompareBy(Database, Functions):
                 f'"{self.first_movie}" OR TITLE LIKE "{self.second_movie}"'
             movies = dict(self.cur.execute(query).fetchall())
             movies = self.wins(movies)
-            movies = max(movies.items(), key=lambda k: k[1])
-            movies = dict([movies])
+            try:
+                movies = max(movies.items(), key=lambda k: k[1])
+                movies = dict([movies])
+            except ValueError:
+                sys.exit('Incorrect movie titles or no data.')
 
         for key, value in movies.items():
             print(f'{key:<50}{value}')
