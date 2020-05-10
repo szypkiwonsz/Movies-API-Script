@@ -70,8 +70,8 @@ python script.py --add_movie [movie title]
 ---
 
 ```
-python script.py --highscores ---> Showing current highscores in: Runtime, Box Office earnings, Most awards won, 
-Most nominations, Most oscars, Highest IMDB Rating.
+python script.py --highscores ---> Showing current highscores in: Runtime, Box Office earnings, 
+Most awards won, Most nominations, Most oscars, Highest IMDB Rating.
 ```
 
 ### Running
