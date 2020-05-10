@@ -17,7 +17,7 @@ pip install requests
 
 ### Avaible commands
 
-Sorting movie data by column
+Sorting movie data by every column
 
 ```
 python script.py --sort_by [column_name]
@@ -44,7 +44,35 @@ python script.py --filter_by awards ---> Filtering movies that won more than 80%
 ```
 python script.py --filter_by box_office ---> Filtering movies that earned more than $100,000,000
 ```
+---
 
+Comparing two movies by selected columns
+
+```
+python script.py --compare_by imdb_rating [first_movie] [second_movie]
+```
+```
+python script.py --compare_by box_office [first_movie] [second_movie]
+```
+```
+python script.py --compare_by awards [first_movie] [second_movie]
+```
+```
+python script.py --compare_by runtime [first_movie] [second_movie]
+```
+---
+
+Adding movie by title and updating data if exist
+
+```
+python script.py --add_movie [movie title]
+```
+---
+
+```
+python script.py --highscores ---> Showing current highscores in: Runtime, Box Office earnings, Most awards won, 
+Most nominations, Most oscars, Highest IMDB Rating.
+```
 
 ### Running
 
