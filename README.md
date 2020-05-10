@@ -39,7 +39,7 @@ python script.py COMMAND
 
 --get_data -> Importing data from api to database. 
 
---sort_by COLUMN_NAME_FROM_DATABASE -> Sorting data from database by column. 
+--sort_by COLUMN_NAME_FROM_DATABASE -> Sorting data from database by column.
 
 --filter_by director "NAME" -> Filtering director column by name or argument. 
 
@@ -65,6 +65,9 @@ python script.py COMMAND
 
 --highscores -> Showing current highscores in: Runtime, Box Office earnings, Most awards won, 
 Most nominations, Most oscars, Highest IMDB Rating.
+
+##### Packages to install:
+- pip install requests
 
 ##### Version of software used:
 - Python 3.7.x
