@@ -70,10 +70,34 @@ python script.py --add_movie [movie title]
 ---
 
 ```
-python script.py --highscores ---> Showing current highscores in: Runtime, Box Office earnings, 
-Most awards won, Most nominations, Most oscars, Highest IMDB Rating.
+python script.py --highscores ---> Showing highscores in: Runtime, Box Office, Awards, Nominations, Oscars, Imdb Rating.
 ```
-
+---
 ### Running
 
+A step by step series of examples that tell you how to run a script
 
+```
+Download project
+```
+```
+Install prerequisites
+```
+```
+Open terminal with choosen folder "Movies-API-Script>"
+```
+```
+Type selected command
+```
+---
+## Built With
+
+* [Python 3.7](https://www.python.org/) - The programming language used
+
+## Authors
+
+* **Jan Kacper Sawicki** - [szypkiwonsz](https://github.com/szypkiwonsz)
+
+## Acknowledgments
+
+* The script was made as a recruitment task for an internship
