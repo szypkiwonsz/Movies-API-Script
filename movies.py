@@ -181,16 +181,18 @@ class CompareBy(Database, Functions):
                 f'"{self.first_movie}" OR TITLE LIKE "{self.second_movie}"'
             movies = dict(self.cur.execute(query).fetchall())
             movies = self.runtime_character(movies)
-        else:
+        elif self.column == 'awards':
             query = f'SELECT TITLE, AWARDS FROM MOVIES WHERE TITLE LIKE ' \
                 f'"{self.first_movie}" OR TITLE LIKE "{self.second_movie}"'
             movies = dict(self.cur.execute(query).fetchall())
             movies = self.wins(movies)
-            try:
-                movies = max(movies.items(), key=lambda k: k[1])
-                movies = dict([movies])
-            except ValueError:
-                sys.exit('Incorrect movie titles or no data.')
+        else:
+            sys.exit(f'You can not compare by: {self.column}')
+        try:
+            movies = max(movies.items(), key=lambda k: k[1])
+            movies = dict([movies])
+        except ValueError:
+            sys.exit('Incorrect movie titles or no data.')
 
         for key, value in movies.items():
             print(f'{key:<50}{value}')
