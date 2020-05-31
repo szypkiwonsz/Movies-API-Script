@@ -8,10 +8,10 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-requests
+Libraries and Packages
 
 ```
-pip install requests
+pip install -r requirements.txt
 ```
 ---
 
@@ -81,7 +81,7 @@ A step by step series of examples that tell you how to run a script
 Download project
 ```
 ```
-Install prerequisites
+Install requirements
 ```
 ```
 Open terminal with choosen folder "Movies-API-Script>"
