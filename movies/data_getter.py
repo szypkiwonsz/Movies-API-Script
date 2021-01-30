@@ -14,5 +14,8 @@ class Api:
         response = requests.get(f'http://www.omdbapi.com/?t={movie_title}&apikey=39f41e43')
         if response.status_code != 200:
             raise requests.HTTPError(f'{response.status_code}')
+        elif response.json()['Response'] == 'False':
+            # raises 204 response status code if there is no data about movie
+            raise requests.HTTPError(204)
         else:
             return response.json()
