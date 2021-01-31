@@ -19,7 +19,7 @@ class JsonLoader:
         movie_data = Api.get(movie_title)
         data = {}
         for column in columns:
-            data.update({column: movie_data[column]} if column in movie_data else None)
+            data.update({column: movie_data[column]} if column in movie_data else {column: 'N/A'})
         self.data.append(data)
 
     def load_movies_data(self, movie_titles):
