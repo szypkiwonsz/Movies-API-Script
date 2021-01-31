@@ -28,13 +28,14 @@ class SortByValuesHandler(QueryHandler):
         award_keywords = ['Nominated', 'nomination.', 'nominations.', 'wins', 'Won']
         return True if any(word in value for word in award_keywords) else False
 
-    def clean_value_to_sort(self, value):
+    @staticmethod
+    def clean_value_to_sort(value):
         """
         Cleans movie value needed for proper sorting.
         param value: <str> -> value to clean
         return: <str> -> cleaned value
         """
-        return self.clean_box_office_value(value)
+        return clean_box_office_value(value)
 
     @staticmethod
     def is_imdb_rating_value(value):
