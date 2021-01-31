@@ -19,17 +19,6 @@ class SortByValuesHandler(QueryHandler):
     """Class storing methods for sorting data about movies from database."""
 
     @staticmethod
-    def clean_box_office_value(value):
-        """
-        Cleans movie value needed for proper sorting box office values.
-        :param value: <str> -> movie value
-        :return: <str> -> string contains only numbers
-        """
-        value = value.replace(',', '')
-        value = value.replace('$', '')
-        return value
-
-    @staticmethod
     def is_award_value(value):
         """
         Checks if entered value is movie award value.
