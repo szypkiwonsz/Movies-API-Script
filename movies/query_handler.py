@@ -74,8 +74,8 @@ class SortByValuesHandler(QueryHandler):
         :param list_to_sort: <list> -> list of tuples to be sorted
         :return: <list> -> sorted list of tuples
         """
-        return sorted(list_to_sort, key=lambda x: [self.sort_by_type(self.clean_value_to_sort(str(x))) for x in x[1:] if
-                                                   x and x != 'N/A'], reverse=True)
+        return sorted(list_to_sort, key=lambda x: [self.sort_by_type(self.clean_value_to_sort(
+            str(x) if x != 'N/A' else str(0))) for x in x[1:]], reverse=True)
 
     def get_data_to_sort(self, table_names):
         """
