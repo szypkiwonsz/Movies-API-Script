@@ -83,13 +83,7 @@ class SortByValuesHandler(QueryHandler):
         :param table_names: <tuple> -> names of tables against which the data will be sorted
         :return: <list> -> prepared list of tuples of data for sorting
         """
-        movies_data = []
-        for movie in self.get_all():
-            movie_data = [movie['title']]
-            movies_data.append(movie_data)
-            for table in table_names:
-                movie_data.append(movie[table])
-        return movies_data
+        return [[movie['title']] + [movie[table] for table in table_names] for movie in self.get_all()]
 
     def sort_by(self, table_names):
         """
