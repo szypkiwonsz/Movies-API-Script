@@ -85,7 +85,7 @@ class SortByValuesHandler(QueryHandler):
         """
         return [[movie['title']] + [movie[table] for table in table_names] for movie in self.get_all()]
 
-    def sort_by(self, table_names):
+    def sort_by_selected_table_names(self, table_names):
         """
         Sorts data from database by table names entered as a script arguments.
         :param table_names: <tuple> -> argument(s) from script
