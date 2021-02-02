@@ -1,4 +1,6 @@
+from awards_counter import AwardsCounter
 from database import DatabaseHandler
+from utils import change_string_with_numbers_to_int
 
 
 class QueryHandler(DatabaseHandler):
@@ -29,22 +31,13 @@ class SortByValuesHandler(QueryHandler):
         return True if any(word in value for word in award_keywords) else False
 
     @staticmethod
-    def clean_value_to_sort(value):
-        """
-        Cleans movie value needed for proper sorting.
-        param value: <str> -> value to clean
-        return: <str> -> cleaned value
-        """
-        return clean_box_office_value(value)
-
-    @staticmethod
-    def is_imdb_rating_value(value):
+    def is_float_value(value):
         """
         Checks if entered value is an imdb rating movie value.
         :param value: <str> -> movie value
         :return: <bool> -> False if the value is not an imdb rating movie value, True if it is
         """
-        return False if [x for x in value.split() if x.isdigit()] else True
+        return isinstance(value, float)
 
     @staticmethod
     def has_digit(string):
