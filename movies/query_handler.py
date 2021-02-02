@@ -63,8 +63,8 @@ class SortByValuesHandler(QueryHandler):
         """
         if self.is_award_value(value):
             return sum([int(x) for x in [x for x in value.split() if x.isdigit()]])
-        elif self.has_digit(value) and not self.is_imdb_rating_value(value):
-            return int(''.join([x for x in value.split() if x.isdigit()]))
+        elif self.has_digit(value) and not self.is_float_value(value):
+            return change_string_with_numbers_to_int(value)
         else:
             return value
 
@@ -74,8 +74,8 @@ class SortByValuesHandler(QueryHandler):
         :param list_to_sort: <list> -> list of tuples to be sorted
         :return: <list> -> sorted list of tuples
         """
-        return sorted(list_to_sort, key=lambda x: [self.sort_by_type(self.clean_value_to_sort(
-            str(x) if x != 'N/A' else str(0))) for x in x[1:]], reverse=True)
+        return sorted(list_to_sort, key=lambda x: [self.sort_by_type(
+            str(x) if x != 'N/A' else str(0)) for x in x[1:]], reverse=True)
 
     def get_data_to_sort(self, table_names):
         """
