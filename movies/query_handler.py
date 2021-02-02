@@ -48,9 +48,10 @@ class SortByValuesHandler(QueryHandler):
         """
         return any(char.isdigit() for char in string)
 
-    def sort_by_type(self, value):
+    def prepare_value_to_sort(self, value):
         """
-        A helper function for sorting with lambda.
+        A helper function for preparing value to sort with lambda.
+        :param value: <str> -> movie value from database
         :return: <int> -> sum of numbers if value is an award value, <int> -> if value has digit and is not an imdb
         rating value, <string> -> if neither of the previous ones
         """
@@ -61,22 +62,22 @@ class SortByValuesHandler(QueryHandler):
         else:
             return value
 
-    def sort_list_decreasing(self, list_to_sort):
+    def sort_movies_data_by_table_names_decreasing(self, list_of_movies, table_names):
         """
         Sorts list of tuples without the first one tuple which is title of the movie.
-        :param list_to_sort: <list> -> list of tuples to be sorted
-        :return: <list> -> sorted list of tuples
+        :param list_of_movies: <list> -> list of database objects - movies
+        :param table_names: <tuple> -> argument(s) from script
+        :return: <list> -> sorted list of database objects - movies
         """
-        return sorted(list_to_sort, key=lambda x: [self.sort_by_type(
-            str(x) if x != 'N/A' else str(0)) for x in x[1:]], reverse=True)
+        return sorted(list_of_movies, key=lambda x: [(self.prepare_value_to_sort(str(x[table_name])) if x != 'N/A' else
+                                                      str(0)) for table_name in table_names], reverse=True)
 
-    def get_data_to_sort(self, table_names):
+    def get_data_to_sort(self):
         """
         Gets data to sort by table names from the database.
-        :param table_names: <tuple> -> names of tables against which the data will be sorted
         :return: <list> -> prepared list of tuples of data for sorting
         """
-        return [[movie['title']] + [movie[table] for table in table_names] for movie in self.get_all()]
+        return [movie for movie in self.get_all()]
 
     def sort_by_selected_table_names(self, table_names):
         """
@@ -84,13 +85,5 @@ class SortByValuesHandler(QueryHandler):
         :param table_names: <tuple> -> argument(s) from script
         :return: <list> -> sorted list of tuples
         """
-        return self.sort_list_decreasing(self.list_of_lists_to_tuples(self.get_data_to_sort(table_names)))
-
-    @staticmethod
-    def list_of_lists_to_tuples(list_of_lists):
-        """
-        Changes list of lists to list of tuples.
-        :param list_of_lists: <list> -> list of lists
-        :return: <list> -> list of tuples
-        """
-        return [tuple(element) for element in list_of_lists]
+        return [tuple([movie['title']] + [movie[table_name] for table_name in table_names]) for movie in
+                self.sort_movies_data_by_table_names_decreasing(self.get_data_to_sort(), table_names)]
