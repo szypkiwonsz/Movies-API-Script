@@ -87,3 +87,109 @@ class SortByValuesHandler(QueryHandler):
         """
         return [tuple([movie['title']] + [movie[table_name] for table_name in table_names]) for movie in
                 self.sort_movies_data_by_table_names_decreasing(self.get_data_to_sort(), table_names)]
+
+
+class FilterByHandler(QueryHandler):
+    """Inheriting class for initialize empty list of filtered movie which will be filled."""
+
+    def __init__(self):
+        super().__init__()
+        self.filtered_movies = []
+
+
+class FilterByValueHandler(FilterByHandler):
+    """Inheriting class storing methods to get filtered movies by entered table name and value."""
+
+    def get_filtered_movies_by_value(self, table_name, value):
+        """
+        Gets filtered movies by entered table name and value.
+        :param table_name: <str> -> database table name
+        :param value: <str> -> the value by which the data is filtered
+        :return: <list> -> list of tuples with filtered movies data.
+        """
+        self.filter_movies_by_value(table_name, value)
+        return [(movie['title'], movie[table_name]) for movie in self.filtered_movies]
+
+    def filter_movies_by_value(self, table_name, value):
+        """
+        Filters movies by entered table name and value.
+        :param table_name: <str> -> database table name
+        :param value: <str> -> the value by which the data is filtered
+        """
+        self.filtered_movies = list(
+            filter(lambda movie: value.lower() in str(movie[table_name]).lower().split(), self.get_all()))
+
+
+class FilterByNominatedForOscar(FilterByHandler):
+    """Inheriting class storing methods to get filtered movies that which were nominated for oscar and have not won."""
+
+    def get_filtered_movies_by_nomination_for_oscar(self):
+        """Gets filtered list of movies.
+        :return: <list> -> list of tuples with filtered movie data
+        """
+        self.filter_movies_by_nomination_for_oscar()
+        return self.filtered_movies
+
+    def check_nomination_for_oscar(self, movie, movie_with_awards):
+        """
+        Checks if movie has nomination for oscar and have not won any of them.
+        :param movie: <sqlite3.Row> -> database movie data
+        :param movie_with_awards: <awards_counter.AwardsCounter> -> awards counter object
+        """
+        if movie_with_awards.oscars_wins == 0 and movie_with_awards.oscars_nominations > 0:
+            self.filtered_movies.append((movie['title'], movie['awards']))
+
+    def filter_movies_by_nomination_for_oscar(self):
+        """
+        Filter movies that has nomination for oscar and have not won any.
+        """
+        for movie in self.get_all():
+            temp_awards_counter = AwardsCounter(movie)
+            temp_awards_counter.scrape_awards()
+            self.check_nomination_for_oscar(movie, temp_awards_counter)
+
+
+class FilterByWinsNominations(FilterByHandler):
+    """Inheriting class storing methods to get filtered movies which has more wins than 80% of nominations."""
+
+    def get_filtered_movies_by_wins_nominations(self):
+        """
+        Gets filtered movies.
+        :return: <list> -> list of tuples with filtered movie data
+        """
+        self.filter_movies_by_wins_nominations()
+        return self.filtered_movies
+
+    def check_wins_nominations(self, movie, movie_with_awards):
+        """
+        Checks if movie has more wins than 80% of nominations.
+        :param movie: <sqlite3.Row> -> database movie data
+        :param movie_with_awards: <awards_counter.AwardsCounter> -> awards counter object
+        """
+        if movie_with_awards.wins + movie_with_awards.oscars_wins > 0.8 * \
+                (movie_with_awards.nominations + movie_with_awards.oscars_nominations):
+            self.filtered_movies.append((movie['title'], movie['awards']))
+
+    def filter_movies_by_wins_nominations(self):
+        """Filters movies which has more wins than 80% of nominations."""
+        for movie in self.get_all():
+            temp_awards_counter = AwardsCounter(movie)
+            temp_awards_counter.scrape_awards()
+            self.check_wins_nominations(movie, temp_awards_counter)
+
+
+class FilterByBoxOffice(FilterByHandler):
+    """Inheriting class storing methods to filter movies which box office is larger than 100.000.000$."""
+
+    def get_filtered_movies_by_box_office(self):
+        """
+        Gets filtered movies.
+        :return: <list> -> list of tuples with filtered movie data
+        """
+        self.filter_movies_by_box_office()
+        return [(movie['title'], movie['box_office']) for movie in self.filtered_movies]
+
+    def filter_movies_by_box_office(self):
+        """Filter movies which box office is larger than 100.000.000$."""
+        self.filtered_movies = list(filter(lambda movie: (change_string_with_numbers_to_int(
+            movie['box_office']) if movie['box_office'] != 'N/A' else 0) > 100000000, self.get_all()))
