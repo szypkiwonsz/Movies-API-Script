@@ -1,9 +1,7 @@
-def clean_box_office_value(value):
+def change_string_with_numbers_to_int(string_with_numbers):
     """
-    Cleans movie value needed for proper sorting box office values.
-    :param value: <str> -> movie value
-    :return: <str> -> string contains only numbers
+    Changes string that contain numbers to int value.
+    :param string_with_numbers: <str> -> string containing numbers
+    :return: <int> -> integer value of numbers from string
     """
-    value = value.replace(',', '')
-    value = value.replace('$', '')
-    return value
+    return int(''.join([x for x in string_with_numbers if x.isdigit()]))
