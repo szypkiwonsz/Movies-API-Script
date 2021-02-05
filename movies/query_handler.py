@@ -1,6 +1,7 @@
 from awards_counter import AwardsCounter
 from database import DatabaseHandler
 from utils import change_string_with_numbers_to_int
+from value_formatter import ValueFormatter
 
 
 class QueryHandler(DatabaseHandler):
@@ -152,3 +153,105 @@ class FilterByBoxOffice(FilterByHandler):
         """Filter movies which box office is larger than 100.000.000$."""
         self.filtered_movies = list(filter(lambda movie: (change_string_with_numbers_to_int(
             movie['box_office']) if movie['box_office'] != 'N/A' else 0) > 100000000, self.get_all()))
+
+
+class CompareByValue(QueryHandler, ValueFormatter):
+    """Inheriting class storing methods for comparing two movies by selected value."""
+
+    def __init__(self, table_name):
+        super().__init__()
+        self.table_name = table_name
+
+    def compare_movies_by_value(self, first_movie, second_movie):
+        """
+        Compares two movies by value.
+        :param first_movie: <sqlite3.Row> -> database object of first movie to compare
+        :param second_movie: <sqlite3.Row> -> database object of second movie to compare
+        :return: <sqlite3.Row> -> database movie object with higher compared value
+        """
+        return max([first_movie, second_movie], key=lambda x: self.prepare_value(x[self.table_name]))
+
+    def get_compared_movie_by_value(self, first_movie, second_movie):
+        """Gets compared movie by higher value.
+        :param first_movie: <sqlite3.Row> -> database object of first movie to compare
+        :param second_movie: <sqlite3.Row> -> database object of second movie to compare
+        :return: <tuple> -> compared movie with higher value
+        """
+        movie = self.compare_movies_by_value(first_movie, second_movie)
+        return movie['title'], movie[self.table_name]
+
+    def get_movie_by_title(self, movie_title):
+        """
+        Gets movie database object by title.
+        :param movie_title: <str> -> title of the movie
+        :return: <str> -> movie database object
+        """
+        return [x for x in self.get_all() if x['title'] == movie_title][0]
+
+
+class CompareByImdbRating(CompareByValue):
+    """Inheriting class storing methods do compare movies by imdb rating."""
+
+    def __init__(self):
+        super().__init__('IMDb_Rating')
+
+    def get_compared_movies_by_imdb_rating(self, first_movie_title, second_movie_title):
+        """
+        Gets compared movies by imdb rating.
+        :param first_movie_title: <str> -> first script argument (title of the movie)
+        :param second_movie_title: <str> -> second script argument (title of the movie)
+        :return: <tuple> -> compared movie with higher value
+        """
+        return self.get_compared_movie_by_value(self.get_movie_by_title(first_movie_title),
+                                                self.get_movie_by_title(second_movie_title))
+
+
+class CompareByBoxOffice(CompareByValue):
+    """Inheriting class storing methods do compare movies by box office."""
+
+    def __init__(self):
+        super().__init__('BOX_OFFICE')
+
+    def get_compared_movies_by_box_office(self, first_movie_title, second_movie_title):
+        """
+        Gets compared movies by box office.
+        :param first_movie_title: <str> -> first script argument (title of the movie)
+        :param second_movie_title: <str> -> second script argument (title of the movie)
+        :return: <tuple> -> compared movie with higher box office value
+        """
+        return self.get_compared_movie_by_value(self.get_movie_by_title(first_movie_title),
+                                                self.get_movie_by_title(second_movie_title))
+
+
+class CompareByAwardsWon(CompareByValue):
+    """Inheriting class storing methods do compare movies by awards won."""
+
+    def __init__(self):
+        super().__init__('AWARDS')
+
+    def get_compared_movies_by_awards_won(self, first_movie_title, second_movie_title):
+        """
+        Gets compared movies by awards won.
+        :param first_movie_title: <str> -> first script argument (title of the movie)
+        :param second_movie_title: <str> -> second script argument (title of the movie)
+        :return: <tuple> -> compared movie with more awards won
+        """
+        return self.get_compared_movie_by_value(self.get_movie_by_title(first_movie_title),
+                                                self.get_movie_by_title(second_movie_title))
+
+
+class CompareByRuntime(CompareByValue):
+    """Inheriting class storing methods do compare movies by runtime."""
+
+    def __init__(self):
+        super().__init__('RUNTIME')
+
+    def get_compared_movies_by_runtime(self, first_movie_title, second_movie_title):
+        """
+        Gets compared movies by runtime.
+        :param first_movie_title: <str> -> first script argument (title of the movie)
+        :param second_movie_title: <str> -> second script argument (title of the movie)
+        :return: <tuple> -> compared movie with higher runtime value
+        """
+        return self.get_compared_movie_by_value(self.get_movie_by_title(first_movie_title),
+                                                self.get_movie_by_title(second_movie_title))
