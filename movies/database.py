@@ -22,7 +22,6 @@ class DatabaseHandler:
             db = sqlite3.connect(self.name)
             # changing the type of data extracted from the database to the dictionary
             db.row_factory = sqlite3.Row
-            print('---> Connected to database.')
         except sqlite3.Error:
             print('---> Error connecting to database!')
         return db
@@ -33,7 +32,6 @@ class DatabaseHandler:
             self.conn.commit()
             self.cur.close()
             self.conn.close()
-            print('---> Database connection has been closed.')
 
     def update_movie_data(self, movie):
         """
