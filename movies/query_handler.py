@@ -80,7 +80,7 @@ class FilterByValueHandler(FilterByHandler):
             filter(lambda movie: value.lower() in str(movie[table_name]).lower().split(), self.get_all()))
 
 
-class FilterByNominatedForOscar(FilterByHandler):
+class FilterByNominatedForOscarHandler(FilterByHandler):
     """Inheriting class storing methods to get filtered movies that which were nominated for oscar and have not won."""
 
     def get_filtered_movies_by_nomination_for_oscar(self):
@@ -109,7 +109,7 @@ class FilterByNominatedForOscar(FilterByHandler):
             self.check_nomination_for_oscar(movie, temp_awards_counter)
 
 
-class FilterByWinsNominations(FilterByHandler):
+class FilterByWinsNominationsHandler(FilterByHandler):
     """Inheriting class storing methods to get filtered movies which has more wins than 80% of nominations."""
 
     def get_filtered_movies_by_wins_nominations(self):
@@ -138,7 +138,7 @@ class FilterByWinsNominations(FilterByHandler):
             self.check_wins_nominations(movie, temp_awards_counter)
 
 
-class FilterByBoxOffice(FilterByHandler):
+class FilterByBoxOfficeHandler(FilterByHandler):
     """Inheriting class storing methods to filter movies which box office is larger than 100.000.000$."""
 
     def get_filtered_movies_by_box_office(self):
@@ -155,7 +155,7 @@ class FilterByBoxOffice(FilterByHandler):
             movie['box_office']) if movie['box_office'] != 'N/A' else 0) > 100000000, self.get_all()))
 
 
-class CompareByValue(QueryHandler, ValueFormatter):
+class CompareByValueHandler(QueryHandler, ValueFormatter):
     """Inheriting class storing methods for comparing two movies by selected value."""
 
     def __init__(self, table_name):
@@ -189,7 +189,7 @@ class CompareByValue(QueryHandler, ValueFormatter):
         return [x for x in self.get_all() if x['title'] == movie_title][0]
 
 
-class CompareByImdbRating(CompareByValue):
+class CompareByImdbRatingHandler(CompareByValueHandler):
     """Inheriting class storing methods do compare movies by imdb rating."""
 
     def __init__(self):
@@ -206,7 +206,7 @@ class CompareByImdbRating(CompareByValue):
                                                 self.get_movie_by_title(second_movie_title))
 
 
-class CompareByBoxOffice(CompareByValue):
+class CompareByBoxOfficeHandler(CompareByValueHandler):
     """Inheriting class storing methods do compare movies by box office."""
 
     def __init__(self):
@@ -223,7 +223,7 @@ class CompareByBoxOffice(CompareByValue):
                                                 self.get_movie_by_title(second_movie_title))
 
 
-class CompareByAwardsWon(CompareByValue):
+class CompareByAwardsWonHandler(CompareByValueHandler):
     """Inheriting class storing methods do compare movies by awards won."""
 
     def __init__(self):
@@ -240,7 +240,7 @@ class CompareByAwardsWon(CompareByValue):
                                                 self.get_movie_by_title(second_movie_title))
 
 
-class CompareByRuntime(CompareByValue):
+class CompareByRuntimeHandler(CompareByValueHandler):
     """Inheriting class storing methods do compare movies by runtime."""
 
     def __init__(self):
