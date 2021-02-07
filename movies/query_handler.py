@@ -105,7 +105,6 @@ class FilterByNominatedForOscarHandler(FilterByHandler):
         """
         for movie in self.get_all():
             temp_awards_counter = AwardsCounter(movie)
-            temp_awards_counter.scrape_awards()
             self.check_nomination_for_oscar(movie, temp_awards_counter)
 
 
@@ -134,7 +133,6 @@ class FilterByWinsNominationsHandler(FilterByHandler):
         """Filters movies which has more wins than 80% of nominations."""
         for movie in self.get_all():
             temp_awards_counter = AwardsCounter(movie)
-            temp_awards_counter.scrape_awards()
             self.check_wins_nominations(movie, temp_awards_counter)
 
 
