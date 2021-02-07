@@ -37,7 +37,7 @@ def add_movie(title):
 @click.argument('table_names', nargs=-1, type=str)
 def sort_by(table_names):
     temp_sort_handler = SortByValuesHandler()
-    click.echo(temp_sort_handler.sort_by_selected_table_names(table_names))
+    click.echo(temp_sort_handler.sort_by_selected_columns(table_names))
 
 
 @cli.command(help='Filters movies by entered table name and value.')

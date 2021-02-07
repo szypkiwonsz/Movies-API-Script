@@ -21,16 +21,16 @@ class QueryHandler(DatabaseHandler):
 class SortByValuesHandler(QueryHandler, ValueFormatter):
     """Class storing methods for sorting data about movies from database."""
 
-    def sort_movies_data_by_table_names_decreasing(self, list_of_movies, table_names):
+    def sort_movies_data_by_columns_decreasing(self, list_of_movies, columns):
         """
         Sorts list of tuples without the first one tuple which is title of the movie.
         :param list_of_movies: <list> -> list of database objects - movies
-        :param table_names: <tuple> -> argument(s) from script
+        :param columns: <tuple> -> argument(s) from script
         :return: <list> -> sorted list of database objects - movies
         """
         return sorted(list_of_movies, key=lambda x: [
-            self.prepare_value(str(x[table_name]) if x[table_name] != 'N/A' else str(0)) for table_name in
-            table_names], reverse=True)
+            self.prepare_value(str(x[column]) if x[column] != 'N/A' else str(0)) for column in
+            columns], reverse=True)
 
     def get_data_to_sort(self):
         """
@@ -39,14 +39,14 @@ class SortByValuesHandler(QueryHandler, ValueFormatter):
         """
         return [movie for movie in self.get_all()]
 
-    def sort_by_selected_table_names(self, table_names):
+    def sort_by_selected_columns(self, columns):
         """
         Sorts data from database by table names entered as a script arguments.
-        :param table_names: <tuple> -> argument(s) from script
+        :param columns: <tuple> -> argument(s) from script
         :return: <list> -> sorted list of tuples
         """
-        return [tuple([movie['title']] + [movie[table_name] for table_name in table_names]) for movie in
-                self.sort_movies_data_by_table_names_decreasing(self.get_data_to_sort(), table_names)]
+        return [tuple([movie['title']] + [movie[column] for column in columns]) for movie in
+                self.sort_movies_data_by_columns_decreasing(self.get_data_to_sort(), columns)]
 
 
 class FilterByHandler(QueryHandler):
@@ -60,24 +60,24 @@ class FilterByHandler(QueryHandler):
 class FilterByValueHandler(FilterByHandler):
     """Inheriting class storing methods to get filtered movies by entered table name and value."""
 
-    def get_filtered_movies_by_value(self, table_name, value):
+    def get_filtered_movies_by_value(self, column, value):
         """
         Gets filtered movies by entered table name and value.
-        :param table_name: <str> -> database table name
+        :param column: <str> -> database table name
         :param value: <str> -> the value by which the data is filtered
         :return: <list> -> list of tuples with filtered movies data.
         """
-        self.filter_movies_by_value(table_name, value)
-        return [(movie['title'], movie[table_name]) for movie in self.filtered_movies]
+        self.filter_movies_by_value(column, value)
+        return [(movie['title'], movie[column]) for movie in self.filtered_movies]
 
-    def filter_movies_by_value(self, table_name, value):
+    def filter_movies_by_value(self, column, value):
         """
         Filters movies by entered table name and value.
-        :param table_name: <str> -> database table name
+        :param column: <str> -> database table name
         :param value: <str> -> the value by which the data is filtered
         """
         self.filtered_movies = list(
-            filter(lambda movie: value.lower() in str(movie[table_name]).lower().split(), self.get_all()))
+            filter(lambda movie: value.lower() in str(movie[column]).lower().split(), self.get_all()))
 
 
 class FilterByNominatedForOscarHandler(FilterByHandler):
@@ -156,9 +156,9 @@ class FilterByBoxOfficeHandler(FilterByHandler):
 class CompareByValueHandler(QueryHandler, ValueFormatter):
     """Inheriting class storing methods for comparing two movies by selected value."""
 
-    def __init__(self, table_name):
+    def __init__(self, column):
         super().__init__()
-        self.table_name = table_name
+        self.column = column
 
     def compare_movies_by_value(self, first_movie, second_movie):
         """
@@ -167,7 +167,7 @@ class CompareByValueHandler(QueryHandler, ValueFormatter):
         :param second_movie: <sqlite3.Row> -> database object of second movie to compare
         :return: <sqlite3.Row> -> database movie object with higher compared value
         """
-        return max([first_movie, second_movie], key=lambda x: self.prepare_value(x[self.table_name]))
+        return max([first_movie, second_movie], key=lambda x: self.prepare_value(x[self.column]))
 
     def get_compared_movie_by_value(self, first_movie, second_movie):
         """Gets compared movie by higher value.
@@ -176,7 +176,7 @@ class CompareByValueHandler(QueryHandler, ValueFormatter):
         :return: <tuple> -> compared movie with higher value
         """
         movie = self.compare_movies_by_value(first_movie, second_movie)
-        return movie['title'], movie[self.table_name]
+        return movie['title'], movie[self.column]
 
     def get_movie_by_title(self, movie_title):
         """
@@ -258,16 +258,16 @@ class CompareByRuntimeHandler(CompareByValueHandler):
 class HighScoreByValueHandler(SortByValuesHandler):
     """Inheriting class storing method to get movie high score by value in selected table name."""
 
-    def __init__(self, table_name):
+    def __init__(self, column):
         super().__init__()
-        self.table_name = table_name
+        self.column = column
 
     def get_movie_high_score_by_value(self):
         """
         Gets movie high score by value in selected table name.
         :return: <tuple> -> title of the movie and high score of value in selected table name
         """
-        return self.sort_by_selected_table_names([self.table_name])[0]
+        return self.sort_by_selected_columns([self.column])[0]
 
 
 class HighScoreByRuntimeHandler(HighScoreByValueHandler):
