@@ -12,6 +12,10 @@ class MovieAwards:
 class AwardsCounter(MovieAwards):
     """Inheriting class storing methods for scraping awards from data about movie."""
 
+    def __init__(self, movie):
+        super().__init__(movie)
+        self.scrape_awards()
+
     def scrape_awards(self):
         """Scrape movie awards by data."""
         self.scrape_oscar_wins()
