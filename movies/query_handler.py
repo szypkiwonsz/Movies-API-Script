@@ -253,3 +253,117 @@ class CompareByRuntimeHandler(CompareByValueHandler):
         """
         return self.get_compared_movie_by_value(self.get_movie_by_title(first_movie_title),
                                                 self.get_movie_by_title(second_movie_title))
+
+
+class HighScoreByValueHandler(SortByValuesHandler):
+    """Inheriting class storing method to get movie high score by value in selected table name."""
+
+    def __init__(self, table_name):
+        super().__init__()
+        self.table_name = table_name
+
+    def get_movie_high_score_by_value(self):
+        """
+        Gets movie high score by value in selected table name.
+        :return: <tuple> -> title of the movie and high score of value in selected table name
+        """
+        return self.sort_by_selected_table_names([self.table_name])[0]
+
+
+class HighScoreByRuntimeHandler(HighScoreByValueHandler):
+    """Inheriting class storing methods to get movie with high score in runtime."""
+
+    def __init__(self):
+        super().__init__('runtime')
+
+    def get_movie_high_score_by_runtime(self):
+        """
+        Gets movie with high score in runtime.
+        :return: <tuple> -> title of the movie and high score in runtime
+        """
+        return self.get_movie_high_score_by_value()
+
+
+class HighScoreByBoxOfficeHandler(HighScoreByValueHandler):
+    """Inheriting class storing methods to get movie with high score in box office."""
+
+    def __init__(self):
+        super().__init__('box_office')
+
+    def get_movie_high_score_by_box_office(self):
+        """
+        Gets movie with high score in runtime.
+        :return: <tuple> -> title of the movie and high score in box office
+        """
+        return self.get_movie_high_score_by_value()
+
+
+class HighScoreByImdbRatingHandler(HighScoreByValueHandler):
+    """Inheriting class storing methods to get movie with high score in imdb rating."""
+
+    def __init__(self):
+        super().__init__('imdb_rating')
+
+    def get_movie_high_score_by_imdb_rating(self):
+        """
+        Gets movie with high score in imdb rating.
+        :return: <tuple> -> title of the movie and high score in imdb rating
+        """
+        return self.get_movie_high_score_by_value()
+
+
+class HighScoreByAwardsWonHandler(QueryHandler):
+    """Inheriting class storing methods to get movie with most awards won."""
+
+    def filter_movie_by_most_awards_won(self):
+        """
+        Filters movies to find the one with most awards won.
+        :return: <sqlite3.Row> -> database movie object with most awards won
+        """
+        return max(self.get_all(), key=lambda movie: AwardsCounter(movie).oscars_wins + AwardsCounter(movie).wins)
+
+    def get_movie_with_most_awards_won(self):
+        """
+        Gets movie with most awards won.
+        :return: <tuple> -> title of the movie and information about awards
+        """
+        movie = self.filter_movie_by_most_awards_won()
+        return movie['title'], movie['awards']
+
+
+class HighScoreByOscarsWonHandler(QueryHandler):
+    """Inheriting class storing methods to get movie with most oscars won."""
+
+    def filter_movie_by_most_oscars_won(self):
+        """
+        Filters movies to find the one with most oscars won.
+        :return: <sqlite3.Row> -> database movie object with most oscars won
+        """
+        return max(self.get_all(), key=lambda movie: AwardsCounter(movie).oscars_wins)
+
+    def get_movie_with_most_oscars_won(self):
+        """
+        Gets movie with most oscars won.
+        :return: <tuple> -> title of the movie and information about oscars
+        """
+        movie = self.filter_movie_by_most_oscars_won()
+        return movie['title'], movie['awards']
+
+
+class HighScoreByNominationsHandler(QueryHandler):
+    """Inheriting class storing methods to get movie with most nominations."""
+
+    def filter_movie_by_most_nominations(self):
+        """
+        Filters movies to find the one with most nominations.
+        :return: <sqlite3.Row> -> database movie object with most nominations
+        """
+        return max(self.get_all(), key=lambda movie: AwardsCounter(movie).nominations)
+
+    def get_movie_with_most_nominations(self):
+        """
+        Gets movie with most nominations.
+        :return: <tuple> -> title of the movie and information about awards
+        """
+        movie = self.filter_movie_by_most_nominations()
+        return movie['title'], movie['awards']
