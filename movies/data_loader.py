@@ -16,7 +16,7 @@ class JsonLoader:
         """
         columns = ['Title', 'Year', 'Runtime', 'Genre', 'Director', 'Actors', 'Writer', 'Language', 'Country', 'Awards',
                    'imdbRating', 'imdbVotes', 'BoxOffice']
-        movie_data = Api.get(movie_title)
+        movie_data = Api.get(f'http://www.omdbapi.com/?t={movie_title}&apikey=39f41e43')
         data = {}
         for column in columns:
             data.update({column: movie_data[column]} if column in movie_data else {column: 'N/A'})
