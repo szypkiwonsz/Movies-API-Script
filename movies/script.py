@@ -2,7 +2,7 @@ import click
 
 from data_loader import JsonLoader
 from database import DatabaseHandler
-from query_handler import QueryHandler, SortByValuesHandler, FilterByValueHandler, FilterByNominatedForOscarHandler, \
+from query_handler import QueryHandler, SortByValueHandler, FilterByValueHandler, FilterByNominatedForOscarHandler, \
     FilterByWinsNominationsHandler, FilterByBoxOfficeHandler, CompareByImdbRatingHandler, CompareByBoxOfficeHandler, \
     CompareByAwardsWonHandler, CompareByRuntimeHandler, HighScoreByRuntimeHandler, \
     HighScoreByBoxOfficeHandler, HighScoreByAwardsWonHandler, HighScoreByNominationsHandler, \
@@ -36,7 +36,7 @@ def add_movie(title):
 @cli.command(help='Sorts movies against the entered table names.')
 @click.argument('table_names', nargs=-1, type=str)
 def sort_by(table_names):
-    temp_sort_handler = SortByValuesHandler()
+    temp_sort_handler = SortByValueHandler()
     click.echo(temp_sort_handler.sort_by_selected_columns(table_names))
 
 

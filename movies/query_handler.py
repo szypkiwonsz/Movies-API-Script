@@ -18,7 +18,7 @@ class QueryHandler(DatabaseHandler):
         return [movie['title'] for movie in self.get_all()]
 
 
-class SortByValuesHandler(QueryHandler, ValueFormatter):
+class SortByValueHandler(QueryHandler, ValueFormatter):
     """Class storing methods for sorting data about movies from database."""
 
     def sort_movies_data_by_columns_decreasing(self, list_of_movies, columns):
@@ -255,7 +255,7 @@ class CompareByRuntimeHandler(CompareByValueHandler):
                                                 self.get_movie_by_title(second_movie_title))
 
 
-class HighScoreByValueHandler(SortByValuesHandler):
+class HighScoreByValueHandler(SortByValueHandler):
     """Inheriting class storing method to get movie high score by value in selected table name."""
 
     def __init__(self, column):
