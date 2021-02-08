@@ -54,7 +54,7 @@ class DatabaseHandler:
     def insert_movie_data(self, movie):
         """
         Inserts single movie data in the database.
-        :param movie: <string> -> title of the movie
+        :param movie: <dict> -> movie data
         """
         query = '''INSERT INTO MOVIES (TITLE, YEAR, RUNTIME, GENRE, DIRECTOR, CAST, WRITER, LANGUAGE, COUNTRY, 
         AWARDS, IMDb_Rating, IMDb_votes, BOX_OFFICE) VALUES (:Title, :Year, :Runtime, :Genre, :Director, :Actors, 
