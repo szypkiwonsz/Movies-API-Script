@@ -121,7 +121,6 @@ class FilterByWinsNominationsHandler(FilterByHandler):
     def check_wins_nominations(self, movie_with_awards):
         """
         Checks if movie has more wins than 80% of nominations.
-        :param movie: <sqlite3.Row> -> database movie data
         :param movie_with_awards: <awards_counter.AwardsCounter> -> awards counter object
         """
         if movie_with_awards.wins + movie_with_awards.oscars_wins > 0.8 * \
