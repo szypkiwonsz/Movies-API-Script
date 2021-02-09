@@ -90,14 +90,13 @@ class FilterByNominatedForOscarHandler(FilterByHandler):
         self.filter_movies_by_nomination_for_oscar()
         return self.filtered_movies
 
-    def check_nomination_for_oscar(self, movie, movie_with_awards):
+    def check_nomination_for_oscar(self, movie_with_awards):
         """
         Checks if movie has nomination for oscar and have not won any of them.
-        :param movie: <sqlite3.Row> -> database movie data
         :param movie_with_awards: <awards_counter.AwardsCounter> -> awards counter object
         """
         if movie_with_awards.oscars_wins == 0 and movie_with_awards.oscars_nominations > 0:
-            self.filtered_movies.append((movie['title'], movie['awards']))
+            self.filtered_movies.append((movie_with_awards.movie['title'], movie_with_awards.movie['awards']))
 
     def filter_movies_by_nomination_for_oscar(self):
         """
@@ -105,7 +104,7 @@ class FilterByNominatedForOscarHandler(FilterByHandler):
         """
         for movie in self.get_all():
             temp_awards_counter = AwardsCounter(movie)
-            self.check_nomination_for_oscar(movie, temp_awards_counter)
+            self.check_nomination_for_oscar(temp_awards_counter)
 
 
 class FilterByWinsNominationsHandler(FilterByHandler):
@@ -119,7 +118,7 @@ class FilterByWinsNominationsHandler(FilterByHandler):
         self.filter_movies_by_wins_nominations()
         return self.filtered_movies
 
-    def check_wins_nominations(self, movie, movie_with_awards):
+    def check_wins_nominations(self, movie_with_awards):
         """
         Checks if movie has more wins than 80% of nominations.
         :param movie: <sqlite3.Row> -> database movie data
@@ -127,13 +126,13 @@ class FilterByWinsNominationsHandler(FilterByHandler):
         """
         if movie_with_awards.wins + movie_with_awards.oscars_wins > 0.8 * \
                 (movie_with_awards.nominations + movie_with_awards.oscars_nominations):
-            self.filtered_movies.append((movie['title'], movie['awards']))
+            self.filtered_movies.append((movie_with_awards.movie['title'], movie_with_awards.movie['awards']))
 
     def filter_movies_by_wins_nominations(self):
         """Filters movies which has more wins than 80% of nominations."""
         for movie in self.get_all():
             temp_awards_counter = AwardsCounter(movie)
-            self.check_wins_nominations(movie, temp_awards_counter)
+            self.check_wins_nominations(temp_awards_counter)
 
 
 class FilterByBoxOfficeHandler(FilterByHandler):
