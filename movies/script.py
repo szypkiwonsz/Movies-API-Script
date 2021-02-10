@@ -14,13 +14,11 @@ def cli():
     pass
 
 
-@cli.command(help='Loads movies data from api to database.')
 def load_from_api():
     temp_query_handler = QueryHandler()
     temp_json_loader = JsonLoader()
     temp_json_loader.load_movies_data(temp_query_handler.get_all_titles())
     temp_query_handler.update_movies(temp_json_loader.data)
-    click.echo('The database has been updated.')
 
 
 @cli.command(help='Add entered movie from api to database.')
@@ -104,4 +102,5 @@ def highscores():
 
 
 if __name__ == '__main__':
+    load_from_api()
     cli()
