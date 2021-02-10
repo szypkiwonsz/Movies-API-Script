@@ -165,7 +165,8 @@ class CompareByValueHandler(QueryHandler, ValueFormatter):
         :param second_movie: <sqlite3.Row> -> database object of second movie to compare
         :return: <sqlite3.Row> -> database movie object with higher compared value
         """
-        return max([first_movie, second_movie], key=lambda x: self.prepare_value(x[self.column]))
+        return max([first_movie, second_movie],
+                   key=lambda x: self.prepare_value(str(x[self.column]) if x[self.column] != 'N/A' else str(0)))
 
     def get_compared_movie_by_value(self, first_movie, second_movie):
         """Gets compared movie by higher value.
